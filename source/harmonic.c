@@ -1376,7 +1376,36 @@ int harmonic_compute_cl(
     free(transfer_ic1_nc);
     free(transfer_ic2_nc);
   }
+    
+  if ((ppt->phenomenological_damping_tail > 0.) || (ppt->phenomenological_damping_eps != 0.)) {
+      /* Default values of 0 mean no extra damping. ell_d > 0 damps only;
+         eps damps (eps > 0) or boosts (eps < 0). eps = (1000/ell_d)^2 gives the same envelope. */
+      double damping = 1.;
+      if (ppt->phenomenological_damping_tail > 0.)
+        damping *= exp(-pow(l/ppt->phenomenological_damping_tail,2.));
+      if (ppt->phenomenological_damping_eps != 0.)
+        damping *= exp(-ppt->phenomenological_damping_eps*pow(l/1000.,2.));
 
+      if (phr->has_tt == _TRUE_)
+        phr->cl[index_md]
+          [(index_l * phr->ic_ic_size[index_md] + index_ic1_ic2) * phr->ct_size + phr->index_ct_tt]
+          *= damping;
+
+      if (phr->has_ee == _TRUE_)
+        phr->cl[index_md]
+          [(index_l * phr->ic_ic_size[index_md] + index_ic1_ic2) * phr->ct_size + phr->index_ct_ee]
+          *= damping;
+
+      if (phr->has_te == _TRUE_)
+        phr->cl[index_md]
+          [(index_l * phr->ic_ic_size[index_md] + index_ic1_ic2) * phr->ct_size + phr->index_ct_te]
+          *= damping;
+
+      if (phr->has_bb == _TRUE_)
+        phr->cl[index_md]
+          [(index_l * phr->ic_ic_size[index_md] + index_ic1_ic2) * phr->ct_size + phr->index_ct_bb]
+          *= damping;
+  }
   return _SUCCESS_;
 
 }
