@@ -11,6 +11,11 @@
 #include "omp.h"
 #endif
 
+/* numpy >= 2 headers include <complex.h>; its macro I clashes with CLASS variable names */
+#ifdef I
+#undef I
+#endif
+
 /* tools for class */
 #include "quadrature.h"
 #include "growTable.h"
